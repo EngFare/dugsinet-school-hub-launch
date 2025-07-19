@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { LanguageToggle, Language } from '@/components/LanguageToggle';
 import { translations } from '@/data/translations';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, User, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface HeaderProps {
   language: Language;
@@ -11,6 +12,7 @@ interface HeaderProps {
 
 export const Header = ({ language, onLanguageChange }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
   const t = translations[language];
 
   const navigation = [
@@ -44,12 +46,27 @@ export const Header = ({ language, onLanguageChange }: HeaderProps) => {
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
             <LanguageToggle currentLanguage={language} onLanguageChange={onLanguageChange} />
-            <Button variant="outline" size="sm">
-              {t.contact}
-            </Button>
-            <Button variant="hero" size="sm">
-              {t.getStarted}
-            </Button>
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 text-sm">
+                  <User className="h-4 w-4" />
+                  <span>{user.email}</span>
+                </div>
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Button variant="outline" size="sm">
+                  {t.contact}
+                </Button>
+                <Button variant="hero" size="sm" asChild>
+                  <a href="/auth">{t.getStarted}</a>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -81,12 +98,27 @@ export const Header = ({ language, onLanguageChange }: HeaderProps) => {
                 </a>
               ))}
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" size="sm" className="w-full">
-                  {t.contact}
-                </Button>
-                <Button variant="hero" size="sm" className="w-full">
-                  {t.getStarted}
-                </Button>
+                {user ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 text-sm py-2">
+                      <User className="h-4 w-4" />
+                      <span>{user.email}</span>
+                    </div>
+                    <Button variant="outline" size="sm" className="w-full" onClick={signOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" className="w-full">
+                      {t.contact}
+                    </Button>
+                    <Button variant="hero" size="sm" className="w-full" asChild>
+                      <a href="/auth">{t.getStarted}</a>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
